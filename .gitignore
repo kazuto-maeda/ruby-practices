@@ -1,5 +1,6 @@
 # rspec
 /.rspec
+./spec/examples.txt
 
 # dotenv
 .env
