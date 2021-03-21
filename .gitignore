@@ -11,3 +11,6 @@ spec/examples.txt
 
 ## DS_Store
 /.DS_Store
+
+# log
+log
