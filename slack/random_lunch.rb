@@ -64,8 +64,6 @@ class RandomLunch
   end
 
   def get_lunch_users(channel)
-    # timestamp = Time.parse(Time.now.beginning_of_day.to_s).to_i
-
     response_body = slack_client.get("conversations.history", create_params_to_get_users(channel))
 
     messages = response_body[:messages].find {|message| message[:bot_id] == LUNCHE_TRAIN_ID}
@@ -88,9 +86,9 @@ class RandomLunch
 
   def shuffle_stamps
     int = rand(2)
-    FOOD_STAMPS <<  SPECIAL_FOOD_STAMPS if int.zero?
+    FOOD_STAMPS <<  SPECIAL_FOOD_STAMPS.sample if int.zero?
 
-    FOOD_STAMPS.flatten.shuffle
+    FOOD_STAMPS.shuffle
   end
 
   def extract_users(text)
