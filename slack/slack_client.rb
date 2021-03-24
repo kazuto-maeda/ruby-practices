@@ -5,8 +5,4 @@ class SlackClient < ApiClient
     super(url: 'https://slack.com/api')
     connection.headers['Authorization'] = token
   end
-
-  def get_lunch_users
-
-  end
 end
