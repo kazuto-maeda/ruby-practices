@@ -1,30 +1,25 @@
 # puts 'スタンプを押して回ります！'
 
-require 'json'
-require 'time'
-require 'date'
-require 'faraday'
-require 'dotenv'
+require "./require_files.rb"
+require "./slack/slack_client.rb"
 
 Dotenv.load
 
 time = Time.parse(Date.today.to_s).to_i
-token = ENV["SLACK_APP_TOKEN"]
 channel = "CHC3PJYMD"
 my_user_id = "USG987S1Y"
 
-connection = Faraday.new(url: 'https://slack.com/api')
-response = connection.get(
+slack_client = SlackClient.new(ENV["SLACK_APP_TOKEN"])
+
+response_body = slack_client.get(
   "conversations.history",
   {
     "channel": channel,
     "oldest": time,
     "pretty": 1,
-    "token": token
   }
 )
 
-response_body =  JSON.parse(response.body, {symbolize_names: true})
 
 messages = response_body[:messages]
 
@@ -36,17 +31,15 @@ messages.each do |message|
   sorted_reactions = reactions.sort {|a,b| a[:count] <=> b[:count]}
   reaction_name = sorted_reactions.last[:name]
 
-  response = connection.post(
+  response_body = slack_client.post(
     "reactions.add",
     {
       "channel": channel,
       "name": "#{reaction_name}",
       "timestamp": "#{timestamp}",
       "pretty": 1,
-      "token": token
     }
   )
-  response_body =  JSON.parse(response.body, {symbolize_names: true})
 
   puts response_body
 end
