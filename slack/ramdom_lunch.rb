@@ -12,7 +12,7 @@ Dotenv.load
 DEFAULT_MEMBER_COUNT = 4
 FOOD_STAMPS = ["stew", "pancakes", "pizza", "hotdog", "hamburger", "shallow_pan_of_food", "sushi", "curry", "spaghetti", "dumpling",  "meat_on_bone", "taco"]
 SPECIAL_FOOD_STAMPS = ["beer"]
-OFFICE_CHANNELS = ["C014JELF1T7", "C01052HE21K"]
+OFFICE_CHANNELS = ["C980YRQM9"]
 POST_TARGET_CHANNEL = "DSV2XCR9N"
 SLACK_APP_TOKEN = ENV["SLACK_APP_TOKEN"]
 LUNCHE_TRAIN_ID = "BUUKXRMN1"
@@ -22,7 +22,7 @@ class ConnectSlack
 
   def initialize
     self.connection = Faraday.new(url: 'https://slack.com/api')
-    connection.post('posts', {post: {context: 'Hellow'}})
+    # connection.post('posts', {post: {context: 'Hellow'}})
   end
 
 
@@ -31,13 +31,18 @@ class ConnectSlack
       get_channel_users(channel, time)
     end
 
+    puts users_array
+
     users_array.flatten.uniq
   end
 
   def get_channel_users(channel, time)
+    
     response_body = do_request("get", "conversations.history", create_params_to_get_users(channel, time))
 
+
     messages = response_body[:messages].select {|message| message[:bot_id] == LUNCHE_TRAIN_ID}
+
     text = messages.first[:attachments].first[:text]
 
     extract_users(text)
@@ -48,17 +53,12 @@ class ConnectSlack
   end
 
   def extract_users(text)
-    got_users = []
 
-    matched_text =  text.match(/<@(\w+)>/)
-    got_users << matched_text[0]
+    got_users = text.scan(/<@(\w+)>/)
 
-    while matched_text.post_match != '.'
-      matched_text = matched_text.post_match.match(/<@(\w+)>/)
-      got_users << matched_text[0]
-    end
+    mentions = got_users.flatten.map { |user| "<@#{user}>"}
 
-    got_users.shuffle
+    mentions.shuffle
   end
 
   def create_params_to_post_result(channel, text)
@@ -144,7 +144,8 @@ class LunchGroup
   end
 end
 
-time = Time.parse(Date.today.to_s).to_i
+
+time = Time.parse((Date.today).to_s).to_i
 
 connect_slack = ConnectSlack.new
 
@@ -158,4 +159,4 @@ text = lunch_groupe.create_text
 
 puts text
 
-#connect_slack.post_result(text)
+connect_slack.post_result(text)
